@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRO STRUC Builder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at top right, #fdf4ff, #e0e7ff);
+    }
+    .brutal-shadow { box-shadow: 6px 6px 0px 0px #000000; }
+    .brutal-border { border: 3px solid #000000; }
+  </style>
+</head>
+<body class="min-h-screen text-gray-900 p-4 md:p-8 flex flex-col items-center justify-center">
+
+  <!-- ================= SKRIN LOG MASUK (BRUTALIST) ================= -->
+  <div id="skrinLogin" class="w-full max-w-md bg-white brutal-border brutal-shadow rounded-2xl p-6 md:p-8 transition-all">
+    <div class="text-center mb-6">
+      <span class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-extrabold px-5 py-1 rounded-full text-xs uppercase brutal-border shadow-sm">Log Masuk Portal</span>
+      <h2 class="text-2xl font-extrabold mt-3 text-gray-900">PRO STRUC Builder</h2>
+      <p class="text-xs text-gray-500 mt-1">Sila masukkan Nama Pengguna dan Kata Laluan anda</p>
+    </div>
+
+    <form id="formAksesLogin" onsubmit="tanganiLogin(event)" class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Nama Pengguna (Username):</label>
+        <input type="text" id="loginUsername" placeholder="Contoh: aqif123" required class="w-full p-3 brutal-border rounded-xl text-sm focus:outline-none font-medium bg-gray-50">
+      </div>
+      
+      <div>
+        <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Kata Laluan (Password):</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required class="w-full p-3 brutal-border rounded-xl text-sm focus:outline-none font-medium bg-gray-50">
+      </div>
+
+      <div id="mesejRalatLogin" class="text-xs font-bold text-red-600 hidden bg-red-50 p-2.5 brutal-border rounded-xl"></div>
+
+      <button type="submit" id="btnSubmitLogin" class="w-full py-3 bg-indigo-600 text-white font-extrabold brutal-border brutal-shadow rounded-xl active:translate-y-0.5 transition-all text-sm uppercase tracking-wider">
+        Masuk Sistem
+      </button>
+    </form>
+  </div>
+
+
+  <!-- ================= APLIKASI UTAMA PRO STRUC ================= -->
+  <div id="aplikasiUtama" class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-3 gap-6 items-start hidden">
+    
+    <!-- BAHAGIAN KIRI & TENGAH: WIZARD INPUT -->
+    <div class="lg:col-span-2 w-full bg-white brutal-border brutal-shadow rounded-2xl p-6 md:p-8 transition-all">
+      
+      <!-- Header Selamat Datang Dinamik + Butang Log Keluar -->
+      <div class="flex flex-col md:flex-row justify-between items-center border-b-2 border-dashed border-gray-200 pb-4 mb-6 gap-3">
+        <div class="text-center md:text-left">
+          <span class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-extrabold px-6 py-1.5 rounded-full text-xs uppercase brutal-border shadow-sm">PRO STRUC</span>
+          <h1 class="text-3xl font-extrabold mt-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-600">Perancang Esei Bahagian C</h1>
+        </div>
+        
+        <!-- Box Info Pelajar & Butang Log Keluar -->
+        <div class="flex flex-col items-center md:items-end gap-2">
+          <div class="bg-purple-100 px-4 py-1.5 brutal-border rounded-xl text-center md:text-right min-w-[150px]">
+            <p class="text-[9px] uppercase font-bold text-purple-700">Pengguna Aktif:</p>
+            <p id="paparNamaPelajar" class="text-xs font-extrabold text-black"></p>
+          </div>
+          <button type="button" onclick="logKeluarSistem()" class="px-3 py-1 bg-rose-500 text-white font-bold text-xs brutal-border rounded-lg shadow-[2px_2px_0px_0px_#000] hover:bg-rose-600 transition-all active:translate-y-0.5">
+            🚪 Log Keluar
+          </button>
+        </div>
+      </div>
+
+      <!-- Pilih Tingkatan, Carian & Set Soalan -->
+      <div class="mb-6 bg-purple-50 p-4 brutal-border rounded-xl space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="md:col-span-1">
+            <label class="block text-xs font-bold uppercase text-gray-700 mb-1">1. Tingkatan:</label>
+            <select id="dropdownTingkatan" onchange="tapisSoalan()" class="w-full p-2.5 brutal-border rounded-lg text-sm bg-white focus:outline-none font-medium">
+              <option value="">-- Semua --</option>
+            </select>
+          </div>
+          
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold uppercase text-gray-700 mb-1">2. Cari Kod (cth: T2S1) & Tekan Enter:</label>
+            <input type="text" id="inputCarian" oninput="tapisSoalan()" onkeydown="semakButangEnter(event)" placeholder="Taip kod dan tekan Enter..." class="w-full p-2.5 brutal-border rounded-lg text-sm bg-white focus:outline-none font-medium">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase text-gray-700 mb-1">3. Pilih Rangsangan Soalan:</label>
+          <select id="dropdownSoalan" onchange="pilihSetSoalan()" class="w-full p-2.5 brutal-border rounded-lg text-sm bg-white focus:outline-none font-medium">
+            <option value="">-- Sila Muatkan Soalan Terlebih Dahulu --</option>
+          </select>
+        </div>
+        
+        <div id="boxPaparanSoalan" class="mt-4 pt-3 border-t border-dashed border-purple-300 text-xs text-gray-800 space-y-3 hidden">
+          <div class="bg-amber-50 p-3 brutal-border rounded-xl">
+            <span class="font-bold text-amber-800 block mb-1">📋 Pernyataan Rangsangan (Stimulus):</span>
+            <p id="viewStimulus" class="italic leading-relaxed text-gray-700"></p>
+          </div>
+          <div class="space-y-1 bg-white p-3 brutal-border rounded-xl">
+            <p id="viewSoalanA" class="font-medium text-gray-800"></p>
+            <p id="viewSoalanB" class="font-medium text-gray-800"></p>
+            <p id="viewSoalanC" class="font-medium text-purple-700 font-semibold"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="mb-6 bg-gray-100 brutal-border rounded-full h-3 overflow-hidden p-0.5">
+        <div id="progressBar" class="bg-gradient-to-r from-indigo-500 to-pink-500 h-full rounded-full transition-all duration-500" style="width: 20%;"></div>
+      </div>
+
+      <form id="eProStrucForm" onsubmit="event.preventDefault();">
+        
+        <!-- Step 1: P - Pilih Isi -->
+        <div id="step1" class="step-container">
+          <div class="flex items-center space-x-3 mb-3">
+            <span class="bg-emerald-500 text-white font-bold brutal-border h-7 w-7 rounded-lg flex items-center justify-center text-xs brutal-shadow">P</span>
+            <h2 class="text-lg font-bold">P – Masukkan Isi / Fakta Tepat</h2>
+          </div>
+          <p class="text-xs text-gray-600 mb-2">Masukkan <strong>satu isi utama sahaja</strong> untuk difokuskan dalam perenggan ini:</p>
+          <input type="text" id="inputP" placeholder="Contoh: memajukan sistem pengairan padi" class="w-full p-3 brutal-border rounded-xl text-sm focus:outline-none" oninput="kemaskiniAktifFormula()">
+        </div>
+
+        <!-- Step 2: R - Rangka -->
+        <div id="step2" class="step-container hidden">
+          <div class="flex items-center space-x-3 mb-3">
+            <span class="bg-blue-500 text-white font-bold brutal-border h-7 w-7 rounded-lg flex items-center justify-center text-xs brutal-shadow">R</span>
+            <h2 class="text-lg font-bold">R – Rangka Ayat Mulaan</h2>
+          </div>
+          
+          <p class="text-xs text-gray-600 mb-2.5">Klik sub-soalan di bawah untuk menjana kepala ayat jawapan bersama isi (P) secara automatik:</p>
+          <div class="flex flex-wrap gap-3 mb-4">
+            <button type="button" onclick="janaRangkaAutomatiK('A')" class="px-4 py-2 bg-[#f3f4f6] text-black font-bold border-2 border-black rounded-xl hover:bg-gray-200 shadow-[3px_3px_0px_0px_#000] transition-all active:translate-y-0.5">Soalan (a)</button>
+            <button type="button" onclick="janaRangkaAutomatiK('B')" class="px-4 py-2 bg-[#f3f4f6] text-black font-bold border-2 border-black rounded-xl hover:bg-gray-200 shadow-[3px_3px_0px_0px_#000] transition-all active:translate-y-0.5">Soalan (b)</button>
+            <button type="button" onclick="janaRangkaAutomatiK('C')" class="px-4 py-2 bg-[#fce7f3] text-[#db2777] font-bold border-2 border-[#f472b6] rounded-xl hover:bg-pink-200 shadow-[3px_3px_0px_0px_#f472b6] transition-all active:translate-y-0.5">Soalan (c) - KBAT</button>
+          </div>
+
+          <textarea id="inputR" placeholder="Ayat mulaan lengkap akan dijana di sini, atau anda boleh taip sendiri..." class="w-full p-3 brutal-border rounded-xl text-sm h-24 resize-none focus:outline-none" oninput="kemaskiniAktifFormula()"></textarea>
+        </div>
+
+        <!-- Step 3: O - Olahan -->
+        <div id="step3" class="step-container hidden">
+          <div class="flex items-center space-x-3 mb-3">
+            <span class="bg-amber-500 text-white font-bold brutal-border h-7 w-7 rounded-lg flex items-center justify-center text-xs brutal-shadow">O</span>
+            <h2 class="text-lg font-bold">O – Olahan Huraian</h2>
+          </div>
+          <p class="text-xs text-gray-600 mb-2">Terangkan isi tadi dengan lebih mendalam (Mengapa isi ini penting / Bagaimana ia berfungsi):</p>
+          <textarea id="inputO" placeholder="Hal ini dikatakan demikian kerana... / Tindakan ini dapat membantu..." class="w-full p-3 brutal-border rounded-xl text-sm h-24 resize-none focus:outline-none" oninput="kemaskiniAktifFormula()"></textarea>
+        </div>
+
+        <!-- Step 4: STRUC -->
+        <div id="step4" class="step-container hidden">
+          <div class="flex items-center space-x-3 mb-3">
+            <span class="bg-indigo-600 text-white font-bold brutal-border h-7 w-7 rounded-lg flex items-center justify-center text-xs brutal-shadow">S</span>
+            <h2 class="text-lg font-bold">STRUC – Elemen Sokongan Matang</h2>
+          </div>
+          <p class="text-xs text-gray-600 mb-3">Lengkapkan huraian isi anda dengan elemen kematangan sejarah:</p>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-gray-500 mb-0.5">Contoh & Kesan:</label>
+              <input type="text" id="strucCK" placeholder="Contoh: Sebagai contoh, pembinaan empangan. Impaknya, bekalan makanan stabil." class="w-full p-2.5 brutal-border rounded-lg text-xs focus:outline-none" oninput="kemaskiniAktifFormula()">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-gray-500 mb-0.5">Penegasan / Inferens KBAT (Masa Hadapan):</label>
+              <textarea id="strucPI" placeholder="Oleh itu, jelaslah bahawa... / Kesimpulannya, perkara ini mendatangkan kesan..." class="w-full p-2.5 brutal-border rounded-lg text-xs h-16 resize-none focus:outline-none" oninput="kemaskiniAktifFormula()"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hasil Akhir -->
+        <div id="resultStep" class="step-container hidden">
+          <h2 class="text-lg font-bold mb-2">Hasil Perenggan Esei Lengkap (Satu Isi):</h2>
+          <div id="finalParagraph" class="p-4 bg-purple-50 brutal-border rounded-xl text-sm leading-relaxed mb-3 min-h-[120px] font-medium text-gray-800"></div>
+          <button type="button" onclick="copyResult()" class="w-full py-2.5 bg-emerald-500 text-white font-bold brutal-border brutal-shadow rounded-xl active:translate-y-0.5 transition-all">📋 Salin Perenggan Esei</button>
+        </div>
+
+        <!-- Navigasi -->
+        <div class="mt-6 flex justify-between items-center">
+          <button type="button" id="prevBtn" onclick="moveStep(-1)" class="px-4 py-2 bg-gray-200 text-gray-800 font-bold brutal-border rounded-xl hidden">Kembali</button>
+          <button type="button" id="nextBtn" onclick="moveStep(1)" class="ml-auto px-5 py-2 bg-indigo-600 text-white font-bold brutal-border brutal-shadow rounded-xl">Seterusnya</button>
+          <button type="button" id="resetBtn" onclick="resetWizard()" class="px-4 py-2 bg-rose-500 text-white font-bold brutal-border rounded-xl hidden">Mula Semula</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- BAHAGIAN KANAN: PANEL FORMULA PRO STRUC -->
+    <div class="w-full bg-white brutal-border brutal-shadow rounded-2xl p-5 space-y-4">
+      <div class="border-b-2 border-black pb-2">
+        <h3 class="text-md font-extrabold text-black uppercase tracking-wider flex items-center gap-1.5">
+          <span>📐</span> Rujukan Formula
+        </h3>
+        <p class="text-[10px] text-gray-500 font-medium">Panduan membina struktur satu perenggan mantap</p>
+      </div>
+
+      <!-- Senarai Item Formula -->
+      <div class="space-y-3 text-xs">
+        <div id="formula-p" class="p-3 rounded-xl border-2 border-black transition-all bg-emerald-50 opacity-100">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-emerald-500 text-white font-bold px-1.5 py-0.5 rounded text-[10px] border border-black">P</span>
+            <span class="font-bold text-gray-900">Pilih Isi Utama</span>
+          </div>
+          <p class="text-gray-600 text-[11px] leading-relaxed">Pilih dan tentukan satu fakta teras yang tepat bagi menjawab fokus soalan Sejarah.</p>
+        </div>
+
+        <div id="formula-r" class="p-3 rounded-xl border-2 border-black opacity-40 transition-all bg-white">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded text-[10px] border border-black">R</span>
+            <span class="font-bold text-gray-900">Rangka Ayat Mulaan</span>
+          </div>
+          <p class="text-gray-600 text-[11px] leading-relaxed">Membina ayat pengenalan lengkap yang menggabungkan kehendak soalan dengan isi (P) secara gramatis.</p>
+        </div>
+
+        <div id="formula-o" class="p-3 rounded-xl border-2 border-black opacity-40 transition-all bg-white">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded text-[10px] border border-black">O</span>
+            <span class="font-bold text-gray-900">Olahan Huraian</span>
+          </div>
+          <p class="text-gray-600 text-[11px] leading-relaxed">Mengembangkan argumen isi dengan mendalam menggunakan huraian mengapa atau bagaimana ia berlaku.</p>
+        </div>
+
+        <div id="formula-struc" class="p-3 rounded-xl border-2 border-black opacity-40 transition-all bg-white">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-indigo-600 text-white font-bold px-1.5 py-0.5 rounded text-[10px] border border-black">STRUC</span>
+            <span class="font-bold text-gray-900">Sokongan Matang</span>
+          </div>
+          <p class="text-gray-600 text-[11px] leading-relaxed">Elemen KBAT aras tinggi yang menggabungkan perincian <strong>Contoh (C), Kesan (K) dan Inferens (I)</strong> di hujung perenggan.</p>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 p-2.5 rounded-xl border border-dashed border-gray-300 text-center">
+        <p class="text-[10px] text-gray-500 font-semibold">MRSM Bentong Innovation Group &copy; 2026</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentStep = 1;
+    const totalSteps = 5; 
+    let koleksiSoalanGlobal = [];
+    let soalanAktif = null;
+
+    // Fungsi Pengendali Log Masuk Pelajar
+    function tanganiLogin(event) {
+      event.preventDefault();
+      
+      const userBox = document.getElementById('loginUsername').value;
+      const passBox = document.getElementById('loginPassword').value;
+      const ralatBox = document.getElementById('mesejRalatLogin');
+      const btnSubmit = document.getElementById('btnSubmitLogin');
+      
+      ralatBox.classList.add('hidden');
+      btnSubmit.innerText = "MENGESAHKAN AKAUN...";
+      btnSubmit.disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function(respon) {
+          if (respon.sah) {
+            document.getElementById('paparNamaPelajar').innerText = respon.nama;
+            document.getElementById('skrinLogin').classList.add('hidden');
+            document.getElementById('aplikasiUtama').classList.remove('hidden');
+            
+            muatKoleksiSoalan(); 
+            kemaskiniAktifFormula();
+          } else {
+            ralatBox.innerText = respon.mesej;
+            ralatBox.classList.remove('hidden');
+            btnSubmit.innerText = "MASUK SISTEM";
+            btnSubmit.disabled = false;
+          }
+        })
+        .withFailureHandler(function(err) {
+          ralatBox.innerText = "Ralat pelayan: Sambungan gagal.";
+          ralatBox.classList.remove('hidden');
+          btnSubmit.innerText = "MASUK SISTEM";
+          btnSubmit.disabled = false;
+        })
+        .semakLogMasuk(userBox, passBox);
+    }
+
+    // FUNGSI BAHARU: Log Keluar Sistem
+    function logKeluarSistem() {
+      if (confirm("Adakah anda pasti untuk log keluar dari sistem?")) {
+        // Kosongkan semula semua input borang wizard
+        resetWizard();
+        
+        // Bersihkan input kredensial log masuk
+        document.getElementById('formAksesLogin').reset();
+        document.getElementById('loginUsername').value = "";
+        document.getElementById('loginPassword').value = "";
+        document.getElementById('mesejRalatLogin').classList.add('hidden');
+        
+        // Sembunyikan panel soalan jika terbuka
+        document.getElementById('boxPaparanSoalan').classList.add('hidden');
+        soalanAktif = null;
+
+        // Tukar paparan skrin kembali ke login
+        document.getElementById('aplikasiUtama').classList.add('hidden');
+        document.getElementById('skrinLogin').classList.remove('hidden');
+        
+        // Reset semula teks butang log masuk jika tersangkut
+        const btnSubmit = document.getElementById('btnSubmitLogin');
+        btnSubmit.innerText = "MASUK SISTEM";
+        btnSubmit.disabled = false;
+      }
+    }
+
+    function muatKoleksiSoalan() {
+      const dropdownTing = document.getElementById('dropdownTingkatan');
+      dropdownTing.innerHTML = '<option value="">⏳...</option>';
+      
+      google.script.run
+        .withSuccessHandler(function(data) {
+          let kaunterTingkatan = {};
+
+          koleksiSoalanGlobal = data.map(s => {
+            let namaTing = s.tingkatan || "Lain";
+            let digitTing = namaTing.replace(/[^0-9]/g, '') || "X"; 
+            
+            if (!kaunterTingkatan[namaTing]) {
+              kaunterTingkatan[namaTing] = 1;
+            } else {
+              kaunterTingkatan[namaTing]++;
+            }
+            
+            s.noKodRingkas = `T${digitTing}S${kaunterTingkatan[namaTing]}`;
+            return s;
+          });
+          
+          let senaraiTingkatan = [...new Set(data.map(s => s.tingkatan))].filter(Boolean);
+          
+          dropdownTing.innerHTML = '<option value="">-- Semua --</option>';
+          senaraiTingkatan.forEach(ting => {
+            let opt = document.createElement('option');
+            opt.value = ting; opt.innerText = ting;
+            dropdownTing.appendChild(opt);
+          });
+          
+          tapisSoalan();
+        })
+        .dapatkanKoleksiSoalan();
+    }
+
+    function tapisSoalan() {
+      const tingkatanDipilih = document.getElementById('dropdownTingkatan').value;
+      const kataKunci = document.getElementById('inputCarian').value.toLowerCase().trim();
+      const dropdownSoalan = document.getElementById('dropdownSoalan');
+      
+      const hasilTapis = koleksiSoalanGlobal.filter(s => {
+        const padanTingkatan = !tingkatanDipilih || s.tingkatan === tingkatanDipilih;
+        const padanKataKunci = !kataKunci || 
+                               s.noKodRingkas.toLowerCase().includes(kataKunci) ||
+                               s.stimulus.toLowerCase().includes(kataKunci) ||
+                               s.soalanA.toLowerCase().includes(kataKunci) ||
+                               s.soalanB.toLowerCase().includes(kataKunci) ||
+                               s.soalanC.toLowerCase().includes(kataKunci);
+                               
+        return padanTingkatan && padanKataKunci;
+      });
+      
+      dropdownSoalan.innerHTML = '';
+      if(hasilTapis.length === 0) {
+        dropdownSoalan.innerHTML = '<option value="">❌ Tiada kod soalan yang sepadan</option>';
+        return;
+      }
+      
+      dropdownSoalan.innerHTML = '<option value="">-- Sila Pilih Soalan --</option>';
+      hasilTapis.forEach(s => {
+        let opt = document.createElement('option');
+        opt.value = s.id;
+        let ringkasanTeks = s.stimulus.length > 45 ? `${s.stimulus.substring(0, 45)}...` : s.stimulus;
+        opt.innerText = `${s.noKodRingkas} - ${ringkasanTeks}`;
+        dropdownSoalan.appendChild(opt);
+      });
+    }
+
+    function semakButangEnter(event) {
+      if (event.key === "Enter") {
+        event.preventDefault(); 
+        const kataKunci = document.getElementById('inputCarian').value.toLowerCase().trim();
+        if (!kataKunci) return;
+
+        const soalanSepadan = koleksiSoalanGlobal.find(s => s.noKodRingkas.toLowerCase() === kataKunci);
+        if (soalanSepadan) {
+          const dropdownSoalan = document.getElementById('dropdownSoalan');
+          dropdownSoalan.value = soalanSepadan.id;
+          pilihSetSoalan();
+        } else {
+          alert(`Kod "${kataKunci.toUpperCase()}" tidak ditemui.`);
+        }
+      }
+    }
+
+    function pilihSetSoalan() {
+      const id = document.getElementById('dropdownSoalan').value;
+      const box = document.getElementById('boxPaparanSoalan');
+      if(id) {
+        soalanAktif = koleksiSoalanGlobal.find(s => s.id === id);
+        document.getElementById('viewStimulus').innerText = soalanAktif.stimulus;
+        document.getElementById('viewSoalanA').innerText = "(a) " + soalanAktif.soalanA;
+        document.getElementById('viewSoalanB').innerText = "(b) " + soalanAktif.soalanB;
+        document.getElementById('viewSoalanC').innerText = "(c) " + soalanAktif.soalanC;
+        box.classList.remove('hidden');
+      } else {
+        box.classList.add('hidden'); soalanAktif = null;
+      }
+    }
+
+    function janaRangkaAutomatiK(jenis) {
+      if(!soalanAktif) { alert("Sila muat dan pilih rujukan soalan di atas terlebih dahulu!"); return; }
+      
+      const isiP = document.getElementById('inputP').value.trim();
+      if(!isiP) {
+        alert("Sila masukkan isi utama anda di langkah 'P' terlebih dahulu!");
+        return;
+      }
+
+      let teksSoalan = jenis === 'A' ? soalanAktif.soalanA : jenis === 'B' ? soalanAktif.soalanB : soalanAktif.soalanC;
+      let ayatPangkal = teksSoalan.replace(/\[.*\]/g, "").trim(); 
+      
+      if (jenis === 'A' || jenis === 'B') {
+        ayatPangkal = ayatPangkal.replace(/jelaskan kegiatan ekonomi/i, "Antara kegiatan ekonomi utama yang telah dijalankan oleh masyarakat tersebut termasuklah");
+        ayatPangkal = ayatPangkal.replace(/jelaskan/i, "Antara aspek penting berkaitan perkara tersebut termasuklah");
+        ayatPangkal = ayatPangkal.replace(/terangkan faktor-faktor/i, "Faktor utama yang mencetuskan peristiwa tersebut ialah");
+        ayatPangkal = ayatPangkal.replace(/huraikan ciri-ciri/i, "Ciri-ciri utama yang dapat dikesan adalah");
+        ayatPangkal = ayatPangkal.replace(/huraikan/i, "Berdasarkan penelitian sejarah, hal tersebut berlaku kerana");
+        ayatPangkal = ayatPangkal.replace(/terangkan/i, "Perkara tersebut dapat diterangkan melalui aspek");
+      } else if (jenis === 'C') {
+        ayatPangkal = ayatPangkal.replace(/pada pendapat anda, apakah usaha-usaha/i, "Pada pendapat saya, usaha mapan yang boleh dilaksanakan bagi menjamin matlamat tersebut ialah");
+        ayatPangkal = ayatPangkal.replace(/pada pendapat anda/i, "Pada pandangan saya, langkah strategik yang wujud termasuklah");
+        ayatPangkal = ayatPangkal.replace(/mengapakah/i, "Perkara tersebut amat penting untuk dipelihara dan dipertahankan kerana");
+        ayatPangkal = ayatPangkal.replace(/bincangkan kebaikan/i, "Antara kebaikan ketara yang bakal diperoleh masyarakat adalah");
+      }
+
+      document.getElementById('inputR').value = `${ayatPangkal} ${isiP}.`;
+    }
+
+    function moveStep(direction) {
+      if (direction === 1 && !validateCurrentStep()) { alert("Sila isi atau jana teks dahulu!"); return; }
+      document.getElementById(`step${currentStep}`).classList.add('hidden');
+      currentStep += direction;
+
+      if (currentStep < 5) {
+        document.getElementById(`step${currentStep}`).classList.remove('hidden');
+        document.getElementById('resultStep').classList.add('hidden');
+        document.getElementById('nextBtn').classList.remove('hidden');
+      } else {
+        document.getElementById('resultStep').classList.remove('hidden');
+        document.getElementById('nextBtn').classList.add('hidden');
+        combineEProStruc();
+      }
+      updateControls();
+      kemaskiniAktifFormula();
+    }
+
+    function validateCurrentStep() {
+      if (currentStep === 1) return document.getElementById('inputP').value.trim() !== "";
+      if (currentStep === 2) return document.getElementById('inputR').value.trim() !== "";
+      return true;
+    }
+
+    function combineEProStruc() {
+      const r = document.getElementById('inputR').value.trim();
+      const o = document.getElementById('inputO').value.trim();
+      const ck = document.getElementById('strucCK').value.trim();
+      const pi = document.getElementById('strucPI').value.trim();
+      
+      let full = r;
+      if(o) full += ` ${o}`;
+      if(ck) full += ` ${ck}`;
+      if(pi) full += ` ${pi}`;
+      
+      document.getElementById('finalParagraph').innerText = full;
+    }
+
+    function updateControls() {
+      const pct = (currentStep / totalSteps) * 100;
+      document.getElementById('progressBar').style.width = `${pct}%`;
+      
+      if (currentStep > 1) document.getElementById('prevBtn').classList.remove('hidden');
+      else document.getElementById('prevBtn').classList.add('hidden');
+      
+      if (currentStep === 5) {
+        document.getElementById('prevBtn').classList.add('hidden');
+        document.getElementById('resetBtn').classList.remove('hidden');
+      } else {
+        document.getElementById('resetBtn').classList.add('hidden');
+      }
+    }
+
+    function copyResult() {
+      navigator.clipboard.writeText(document.getElementById('finalParagraph').innerText).then(() => {
+        alert("Esei lengkap berjaya disalin!");
+      });
+    }
+
+    function resetWizard() {
+      document.getElementById('eProStrucForm').reset();
+      document.getElementById('resultStep').classList.add('hidden');
+      currentStep = 1;
+      document.getElementById('step1').classList.remove('hidden');
+      document.getElementById('nextBtn').classList.remove('hidden');
+      updateControls();
+      kemaskiniAktifFormula();
+    }
+
+    function kemaskiniAktifFormula() {
+      const fP = document.getElementById('formula-p');
+      const fR = document.getElementById('formula-r');
+      const fO = document.getElementById('formula-o');
+      const fStruc = document.getElementById('formula-struc');
+
+      if(!fP) return; 
+
+      [fP, fR, fO, fStruc].forEach(el => {
+        el.classList.remove('bg-emerald-50', 'bg-blue-50', 'bg-amber-50', 'bg-indigo-50');
+        el.classList.add('bg-white', 'opacity-40');
+      });
+
+      if (currentStep === 1) {
+        fP.classList.remove('bg-white', 'opacity-40');
+        fP.classList.add('bg-emerald-50', 'opacity-100');
+      } else if (currentStep === 2) {
+        fR.classList.remove('bg-white', 'opacity-40');
+        fR.classList.add('bg-blue-50', 'opacity-100');
+      } else if (currentStep === 3) {
+        fO.classList.remove('bg-white', 'opacity-40');
+        fO.classList.add('bg-amber-50', 'opacity-100');
+      } else if (currentStep === 4) {
+        fStruc.classList.remove('bg-white', 'opacity-40');
+        fStruc.classList.add('bg-indigo-50', 'opacity-100');
+      } else if (currentStep === 5) {
+        fP.classList.add('opacity-100'); fR.classList.add('opacity-100');
+        fO.classList.add('opacity-100'); fStruc.classList.add('opacity-100');
+      }
+    }
+  </script>
+</body>
+</html>
